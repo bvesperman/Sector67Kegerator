@@ -12,11 +12,11 @@ from time import gmtime, strftime
 import subprocess
 import os
 import MachineLogic
-
+from datetime import datetime, timedelta
 
 localRFID = ""
 rebootTime = time.time() + 86400
-
+free_beer_hours = 8 
 machine = MachineLogic.MachineLogic()
 machine.Setup()
 
@@ -44,6 +44,8 @@ try:
 except Exception, e:
    print e
 
+freebeertill = None
+
 #loop forever
 while True:
     # read the standard input to see if the RFID has been swiped
@@ -52,7 +54,7 @@ while True:
         if localRFID:
             localRFID = ''.join(localRFID.splitlines())
             #RFID has been swiped now check if authorized
-        print(int(localRFID))    	    
+        print(int(localRFID))
         if access.IsRFIDAuthorized(int(localRFID)):
            print('access.IsRFIDAuthorized was triggred.')
            machine.DoAuthorizedWork()
@@ -61,7 +63,37 @@ while True:
            machine.ReportJob()
         else:
            print('User does not have acces')
+           print 'localrfid is ' + localRFID 
            machine.LedUnauthroized()
+        if str(localRFID) == '0006115262':  #       if str(localRFID) == '463355':0000463355
+           print "Time for free info"
+           if not freebeertill:
+               freebeertill = datetime.now() + timedelta(hours=free_beer_hours)
+           else:
+               print "No free beer."
+               freebeertill = None
+               machine.GreenLightOff()
+               machine.Closeupthevalues() 
+        if freebeertill:     
+           now = datetime.now()
+           if freebeertill > now:
+               print "still free beer"
+               machine.GreenLightOn()
+               machine.Openupthevalues()
+           else:
+               print "free beer has gone away :("
+               machine.GreenLightOff()
+               machine.Closeupthevalues()
+    if freebeertill:     
+        now = datetime.now()
+        if freebeertill > now:
+            print "still free beer"
+            machine.GreenLightOn()
+            machine.Openupthevalues()
+        else:
+            print "free beer has gone away :("
+            machine.GreenLightOff()
+            machine.Closeupthevalues()
     time.sleep(machine.sleepTime)
 
     if  time.time() > rebootTime and not machine.Busy():

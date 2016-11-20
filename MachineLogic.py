@@ -77,6 +77,26 @@ class MachineLogic:
         print "turned off the red led for 3 seconds." 
         self.pwm.set_pwm(redLed,0x1000,0)
 
+    def GreenLightOn(self):
+        print "turning on the green light"
+        greenLed = 12        
+        self.pwm.set_pwm(greenLed, 0, 0x1000)
+        
+    def GreenLightOff(self):
+        print "turning off the green light" 
+        greenLed = 12        
+        self.pwm.set_pwm(greenLed, 0x1000, 0)
+        
+    def Openupthevalues(self):
+        valves = [self.valve, self.valve2]
+        for valve in valves:
+           self.pwm.set_pwm(valve,0, 0x1000)
+           
+    def Closeupthevalues(self):
+        valves = [self.valve, self.valve2]
+        for valve in valves:
+            self.pwm.set_pwm(valve, 0x1000, 0)
+
     def LedFadeOff(self):
         print "AuthenticationLed triggered"
         valves = [self.valve, self.valve2]
